@@ -3,10 +3,11 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import pickle
-from utils import get_title,get_content,get_reply
+from utils import get_title, get_content, get_reply
 import random
 from utils import session
-from database import Bar,Tie
+from database import Bar, Tie
+
 
 class BaiduSpider(object):
     def __init__(self, username, password):
@@ -142,15 +143,12 @@ class BaiduSpider(object):
                 time.sleep(sleep_time)
 
 
-
-
-
 if __name__ == '__main__':
     # 登陆
     baidu = BaiduSpider('litufu001', '123456abc')  # 你的百度账号，密码
     # 发帖
-    for bar in session.query(Bar).all():
-        barName = bar.name
+    for bar_obj in session.query(Bar).all():
+        barName = bar_obj.name
         post_title = '{}{}'.format(barName, get_title())
         post_content = '{}的同学们，{}'.format(barName, get_content())
         baidu.post(barName, post_title, post_content)
