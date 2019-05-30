@@ -9,6 +9,7 @@ from content import content
 from database import Bar, Tie,Base
 from tiebautils import check,client_thread_add,get_fid,client_Post
 from utils import get_title
+from bduss import bdusses
 
 engine = create_engine('sqlite:///tiebar.sqlite')
 Base.metadata.bind = engine
@@ -91,9 +92,6 @@ def send(bduss,length,i):
 if __name__ == '__main__':
 
     while True:
-        bdusses = [
-            "gySmxaVktPcFN3WXdvemZjZzBqWnptSHRPcWhaMH4wN2FPUGVnZjNCTlR-eFpkSVFBQUFBJCQAAAAAAAAAAAEAAAAkj9T0d2Fud3VmdXN1MDM3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFNy71xTcu9cS3",
-        ]
         length = len(bdusses)
         p = Pool(length)
         for i, bduss in enumerate(bdusses):

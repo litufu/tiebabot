@@ -25,5 +25,11 @@ class Tie(Base):
                         uselist=True,
                         cascade='delete,all'))
 
+class Search(Base):
+    __tablename__ = 'search'
+    id = Column(Integer, primary_key=True)
+    tid = Column(String)
+    has_reply = Column(Boolean)
+
 
 Base.metadata.create_all(engine)
