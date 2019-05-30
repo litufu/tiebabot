@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, String, Integer, ForeignKey, func
+from sqlalchemy import Column, DateTime, String, Integer, ForeignKey, func,Boolean
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -11,6 +11,7 @@ class Bar(Base):
     __tablename__ = 'bar'
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    hassend = Column(Boolean)
 
 
 class Tie(Base):

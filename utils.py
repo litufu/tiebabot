@@ -5,6 +5,10 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from urllib.parse import quote
 import random
+import time
+import hashlib
+import re
+import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database import Bar,Tie,Base
@@ -48,6 +52,9 @@ def get_title():
         '有没有今年参加高考的',
         '同学们都报考什么学校和专业',
         '同学一起来填报高考志愿',
+        '今年参加高考的进',
+        '高三的来'
+
     ]
     return titles[random.randint(0, len(titles)-1)]
 
@@ -64,9 +71,9 @@ def get_content():
 
 def get_reply():
     replaies = [
-        '可以啊',
-        '不错不错',
-        '这个可以有',
+        '占座',
+        '留名',
+        '前排',
     ]
 
     return replaies[random.randint(0, len(replaies) - 1)]
@@ -80,3 +87,145 @@ def save_bar():
             session.add(b)
             session.commit()
 
+def get_name(bduss):
+    # 网页版获取贴吧用户名
+    headers = {
+        'Host':'tieba.baidu.com',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+        'Cookie': 'BDUSS='+bduss,
+    }
+    url = 'https://tieba.baidu.com/mo/q-'
+    try:
+        r = requests.get(url=url, headers=headers).text
+        name = re.search(r">([\u4e00-\u9fa5a-zA-Z0-9]+)的i贴吧<", r).group(1)
+    except Exception:
+        name = None
+    finally:
+        return name
+
+def get_tbs(bduss):
+    # 获取tbs
+    headers = {
+        'Host': 'tieba.baidu.com',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+        'Cookie': 'BDUSS=' + bduss,
+    }
+    url = 'http://tieba.baidu.com/dc/common/tbs'
+    return requests.get(url=url,headers=headers).json()['tbs']
+
+def get_fid(bdname):
+    # 获取贴吧对用的fourm id
+    url = 'http://tieba.baidu.com/f/commit/share/fnameShareApi?ie=utf-8&fname='+str(bdname)
+    fid = requests.get(url,timeout=2).json()['data']['fid']
+    return fid
+
+def Post(bduss, content, tid, fid, tbname):
+    # 网页版回帖
+    tbs = get_tbs(bduss)
+    headers = {
+        'Accept':"application/json, text/javascript, */*; q=0.01",
+        'Accept-Encoding':"gzip, deflate, br",
+        'Accept-Language':"zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+        'Connection':"keep-alive",
+        'Content-Type': "application/x-www-form-urlencoded;charset=UTF-8",
+        'Cookie': 'BDUSS='+bduss,
+        'DNT':'1',
+        'Host':'tieba.baidu.com',
+        'Origin': 'https://tieba.baidu.com',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+    data = {
+        'ie':'utf-8',
+        'kw':tbname,
+        'fid':fid,
+        'tid':tid,
+        'tbs':tbs,
+        '__type__':'reply',
+        'content':content,
+    }
+    url = 'https://tieba.baidu.com/f/commit/post/add'
+    r = requests.post(url=url,data=data,headers=headers,timeout=2).json()
+    return r
+
+def get_kw(tid):
+    # 通过tid获取贴吧名字
+    headers = {
+        'Host': 'tieba.baidu.com',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+    }
+    url = 'https://tieba.baidu.com/p/' + str(tid)
+    res = requests.get(url=url, headers=headers,timeout=2).text
+    kw = re.search("fname=\"([^\"]+)\"", res).group(1)
+    return kw
+
+def encodeData(data):
+    SIGN_KEY = 'tiebaclient!!!'
+    s = ''
+    keys = data.keys()
+    for i in sorted(keys):
+        s += i + '=' + str(data[i])
+    sign = hashlib.md5((s + SIGN_KEY).encode('utf-8')).hexdigest().upper()
+    data.update({'sign': str(sign)})
+    return data
+
+def check(bduss):
+    # 检查bduss是否失效
+    headers = {
+        'Host': 'tieba.baidu.com',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+        'Cookie': 'BDUSS=' + bduss,
+    }
+    url = 'http://tieba.baidu.com/dc/common/tbs'
+    return requests.get(url=url,headers=headers).json()['is_login']
+
+
+def client_thread_add(bduss, kw, fid, content, title):
+    # 客户端发帖
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': 'ka=open',
+        'User-Agent': 'bdtb for Android 9.7.8.0',
+        'Connection': 'close',
+        'Accept-Encoding': 'gzip',
+        'Host': 'c.tieba.baidu.com',
+    }
+
+    data = {
+        'BDUSS': bduss,
+        '_client_type': '4',
+        '_client_id': 'wappc_1550210478950_661',
+        '_client_version': '9.7.8.0',
+        '_phone_imei': '000000000000000',
+        'anonymous': '1',
+        'call_from': '2',
+        'content': content,
+        'entrance_type': '1',
+        'fid': fid,
+        'is_ad': '0',
+        'kw': kw,
+        'model': 'MI+5',
+        'net_type': '1',
+        'new_vcode': '1',
+        'can_no_forum': '0',
+        'tbs': get_tbs(bduss),
+        'timestamp': str(int(time.time())),
+        'vcode_tag': '11',
+        'is_hide': '1',
+        'is_feedback': '0',
+        'reply_uid': 'null',
+        'is_ntitle': '0',
+        'title': title,
+        'subapp_type': 'mini',
+        'takephoto_num': '0',
+    }
+    data = encodeData(data)
+    url = 'http://c.tieba.baidu.com/c/c/thread/add'
+    a = requests.post(url=url, data=data, headers=headers, timeout=2).json()
+    return a
+
+if __name__ == '__main__':
+    # bduss = "N-OTlydVdrNk1iSURtRXdXT3VmWmJpOC1DQXVGVWFFdkNWRjFYeEo2Q2owQlpkSVFBQUFBJCQAAAAAAAAAAAEAAAAkj9T0d2Fud3VmdXN1MDM3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKND71yjQ-9cUz"
+    # print(get_tbs(bduss))
+    # print(get_name(bduss))
+    print(get_fid('篮球'))
