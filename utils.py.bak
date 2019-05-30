@@ -67,9 +67,8 @@ def get_content():
         '格物水滴app,高考志愿填报模拟专用',
         '格物水滴app助你考上理想大学',
 		'高考志愿模拟填报必用格物水滴app',
-		'用格物水滴app更容易考上理想的大学',
-		'同学们，有没有人在用格物水滴app模拟高考报名',
-		]
+		'用格物水滴app更容易考上理想的大学'
+    ]
 
     return contents[random.randint(0, len(contents)-1)]
 

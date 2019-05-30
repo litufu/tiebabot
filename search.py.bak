@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import re
-from bduss import reply_bduss
+from bduss import bdusses
 
 from database import Bar, Tie,Base,Search
 from tiebautils import check,client_thread_add,get_fid,client_Post
@@ -45,7 +45,7 @@ def replay(title,kw):
             if len(search_results)==0:
                 print('开始回复{}'.format(tid))
                 content = get_content()
-                client_Post(reply_bduss, kw, tid, fid, content)
+                client_Post(bdusses[0], kw, tid, fid, content)
                 new_search = Search(tid=tid,has_reply=True)
                 session.add(new_search)
                 session.commit()
