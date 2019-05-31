@@ -391,4 +391,6 @@ def get_tid(title,kw):
 
 
 if __name__ == '__main__':
-    print(get_tid('茂名市第十六中学有没有今年参加高考的','茂名市第十六中学'))
+    from bduss import bdusses
+    for bduss in bdusses:
+        print(check(bduss))

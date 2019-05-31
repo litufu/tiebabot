@@ -32,13 +32,16 @@ class Baidu(object):
         title = '{}{}'.format(kw, get_title())
         if check(self.bduss):
             res = client_thread_add(self.bduss, kw, fid, contents[0], title)
+            print(res)
             time.sleep(8)
-            if res['msg'] != "发送成功":
+            if 'msg' in res and res['msg'] != "发送成功":
                 print('发帖失败{}'.format(kw))
+
             print('{}发帖成功'.format(kw))
             tid = res['tid']
             for cont in contents[1:]:
-                client_Post(self.bduss, kw, tid, fid, cont)
+                post = client_Post(self.bduss, kw, tid, fid, cont)
+                print(post)
                 time.sleep(8)
             print('{}回帖成功'.format(kw))
             bar.hassend=True
