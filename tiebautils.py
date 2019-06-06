@@ -391,6 +391,13 @@ def get_tid(title,kw):
 
 
 if __name__ == '__main__':
-    from bduss import bdusses
-    for bduss in bdusses:
-        print(check(bduss))
+    from bduss import bdusses,reply_bduss
+    print(check(reply_bduss))
+    res = Post(reply_bduss, '好，不错', '6107916090', '79384', '上海交大附中')
+    print(res)
+    res1 = client_Post(reply_bduss, '上海交大附中', '6107916090', '79384', '好，不错')
+    print(res1)
+
+    #for bduss in bdusses:
+     #   print(check(bduss))
+    print(get_fid('上海交大附中'))

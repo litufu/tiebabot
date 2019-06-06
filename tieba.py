@@ -27,28 +27,31 @@ class Baidu(object):
         '''
             res:{'opgroup': '0', 'pid': '125867227452', 'tid': '6147431000', 'msg': '发送成功', 'pre_msg': '经验 ', 'info': {'access_state': [], 'confilter_hitwords': [], 'need_vcode': '0', 'vcode_md5': '7555x/KllzCmyK+jbZ9frCkGvrEKm/lvsIWXiJNGWK/4Z2lzOtCPczDKRsCjCJnP', 'vcode_prev_type': '0', 'vcode_type': '0', 'pass_token': ''}, 'time': 1559196367, 'ctime': 0, 'logid': 367165643, 'error_code': '0', 'server_time': '569751'}
         '''
-        contents = self.convert_to_contents(cnt)
+        contents = self.convert_to_contents(cnt,kw)
         fid = get_fid(kw)
         title = '{}{}'.format(kw, get_title())
         if check(self.bduss):
             res = client_thread_add(self.bduss, kw, fid, contents[0], title)
             print(res)
-            time.sleep(8)
+            time.sleep(30)
             if 'msg' in res and res['msg'] != "发送成功":
                 print('发帖失败{}'.format(kw))
-
+                return
             print('{}发帖成功'.format(kw))
             tid = res['tid']
             for cont in contents[1:]:
                 post = client_Post(self.bduss, kw, tid, fid, cont)
+                if 'error_msg' in post:
+                    print('回帖失败')
+                    return
                 print(post)
-                time.sleep(8)
+                time.sleep(15)
             print('{}回帖成功'.format(kw))
             bar.hassend=True
             self.session.commit()
-            time.sleep(80)
+            time.sleep(100)
 
-    def convert_to_contents(self,cnt):
+    def convert_to_contents(self,cnt,kw):
         '''
         将有换行符的内容随机分割成3到5部分。
         :param content: 原始内容
@@ -66,7 +69,7 @@ class Baidu(object):
                 random_num = random.randint(num_min, num_max)
                 random_nums.append(random_num)
             random_nums.append(contents_length)
-            new_contents = ['\n'.join(contents[random_nums[i]:random_nums[i + 1]]) for i in
+            new_contents = ['\n'.join(contents[random_nums[i]:random_nums[i + 1]])+'{}同学们'.format(kw) for i in
                             range(len(random_nums) - 1)]
             return new_contents
 

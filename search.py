@@ -7,7 +7,7 @@ import re
 from bduss import reply_bduss
 
 from database import Bar, Tie,Base,Search
-from tiebautils import check,client_thread_add,get_fid,client_Post
+from tiebautils import check,client_thread_add,get_fid,client_Post,Post
 from utils import get_content
 # 数据库
 engine = create_engine('sqlite:///tiebar.sqlite')
@@ -27,7 +27,7 @@ driver = webdriver.Chrome(
     options=chrome_options)
 
 
-def replay(title,kw):
+def replay(title,kw,bduss):
     print(kw)
     driver.get(url='http://tieba.baidu.com/f?kw={}'.format(kw))
     time.sleep(3)
@@ -41,23 +41,31 @@ def replay(title,kw):
         res = pattern.match(text)
         if res:
             tid = res[1]
-            search_results = session.query(Search).filter(Search.tid==tid).all()
+            #search_results = session.query(Search).filter(Search.tid==tid).all()
+            search_results = []
             if len(search_results)==0:
                 print('开始回复{}'.format(tid))
-                content = get_content()
-                client_Post(reply_bduss, kw, tid, fid, content)
-                new_search = Search(tid=tid,has_reply=True)
-                session.add(new_search)
-                session.commit()
-                print('回复完成{}'.format(tid))
-                time.sleep(60)
+                content = '{}同学们,{}'.format(kw,get_content())
+                res = client_Post(bduss, kw, tid, fid, content)
+                if 'error_msg' in res:
+                    print(res)
+                    return False
+                else:
+                    print(res)
+                    new_search = Search(tid=tid,has_reply=True)
+                    session.add(new_search)
+                    session.commit()
+                    print('回复完成{}'.format(tid))
+                    time.sleep(60)
+                    return True
 
 
 if __name__ == '__main__':
-    while True:
+    res = True
+    while res:
         for bar in bars:
             try:
-                replay('高考',bar.name)
+                res = replay('高考',bar.name,reply_bduss)
             except Exception as e:
                 print(e)
 
