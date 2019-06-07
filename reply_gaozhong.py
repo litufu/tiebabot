@@ -61,7 +61,6 @@ def replay(title,kw,bduss,content):
                 res = client_Post(bduss, kw, tid, fid, content)
                 if 'error_msg' in res:
                     print(res)
-                    return False
                 else:
                     print(res)
                     new_search = Search(tid=tid,has_reply=True)
@@ -69,21 +68,21 @@ def replay(title,kw,bduss,content):
                     session.commit()
                     print('回复完成{}'.format(tid))
                     time.sleep(60)
-                    return True
 
 
 if __name__ == '__main__':
-    gaozhong = pd.read_sql_table('gaozhong', con)
-    gaozhongs = list(gaozhong["school_name"])
-    time.sleep(3601)
-    for i in range(60):
+   # gaozhong = pd.read_sql_table('gaozhong', con)
+    #gaozhongs = list(gaozhong["school_name"])
+
+    for i in range(500):
         print(i)
         try:
-            name = choice(gaozhongs)
+            name = choice(bars).name
             content = '{}同学们，'.format(name,get_gaozhong_content())
             response = replay('高考',name,bdusses[0],content)
         except Exception as e:
             print(e)
+    time.sleep(3601)
 
 
 

@@ -13,12 +13,12 @@ class Bar(Base):
     name = Column(String)
     hassend = Column(Boolean)
 
-# class University(Base):
-#     __tablename__ = 'university'
-#     id = Column(Integer, primary_key=True)
-#     name = Column(String)
-#     hassend = Column(Boolean)
-#
+class University(Base):
+    __tablename__ = 'university'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    hassend = Column(Boolean)
+
 # class GaoZhong(Base):
 #     __tablename__ = 'gaozhong'
 #     id = Column(Integer, primary_key=True)

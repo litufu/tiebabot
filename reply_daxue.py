@@ -8,7 +8,7 @@ from random import choice
 
 from bduss import bdusses
 import pandas as pd
-from database import Bar, Tie,Base,Search
+from database import Bar, Tie,Base,Search,University
 from tiebautils import check,client_thread_add,get_fid,client_Post,Post
 from utils import get_gaozhong_content
 # 数据库
@@ -17,7 +17,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 con = engine.connect()#创建连接
-bars = session.query(Bar).all()
+bars = session.query(University).all()
 
 
 
@@ -72,12 +72,11 @@ def replay(title,kw,bduss,content):
 
 
 if __name__ == '__main__':
-    daxue = pd.read_sql_table('daxue', con)
-    daxues = list(daxue["name"])
+
     for i in range(60):
         print(i)
         try:
-            name = choice(daxues)
+            name = choice(bars).name
             content = '报考{}的同学们，'.format(name, get_gaozhong_content())
             response = replay('报考',name,bdusses[1],content)
         except Exception as e:

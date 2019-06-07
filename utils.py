@@ -11,7 +11,7 @@ import re
 import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database import Bar,Tie,Base
+from database import Bar,Tie,Base,University
 
 engine = create_engine('sqlite:///tiebar.sqlite')
 Base.metadata.bind = engine
@@ -279,4 +279,9 @@ if __name__ == '__main__':
     # bduss = "N-OTlydVdrNk1iSURtRXdXT3VmWmJpOC1DQXVGVWFFdkNWRjFYeEo2Q2owQlpkSVFBQUFBJCQAAAAAAAAAAAEAAAAkj9T0d2Fud3VmdXN1MDM3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKND71yjQ-9cUz"
     # print(get_tbs(bduss))
     # print(get_name(bduss))
-    print(get_fid('篮球'))
+
+    for barName in get_all_ba_name('高等院校'):
+        b = University(name=barName)
+        session.add(b)
+        session.commit()
+

@@ -265,7 +265,7 @@ def client_Post(bduss, kw, tid, fid, content):
     data = {
         'BDUSS':bduss,
         '_client_type':'2',
-        '_client_version':'9.7.8.0',
+        '_client_version':'10.2.8.5',
         '_phone_imei':'000000000000000',
         'anonymous':'1',
         'content':content,
